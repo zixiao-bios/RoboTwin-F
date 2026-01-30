@@ -7,6 +7,7 @@ from sapien.render import clear_cache
 from collections import OrderedDict
 import pdb
 from envs import *
+from envs.utils import ReproductionConfig
 import yaml
 import importlib
 import json
@@ -133,6 +134,30 @@ def run(TASK_ENV, args):
                     print(f"simulate data episode {suc_num} success! (seed = {epid})")
                     seed_list.append(epid)
                     TASK_ENV.save_traj_data(suc_num)
+                    
+                    # 保存复现配置到统一文件
+                    reproduction_config = ReproductionConfig.from_env(
+                        TASK_ENV, seed=epid, embodiment=args["embodiment"]
+                    )
+                    configs_file = os.path.join(args["save_path"], "reproduction_configs.json")
+                    
+                    # 读取现有配置
+                    if os.path.exists(configs_file):
+                        with open(configs_file, "r", encoding="utf-8") as f:
+                            all_configs = json.load(f)
+                    else:
+                        all_configs = {"episodes": []}
+                    
+                    # 添加当前 episode 配置
+                    all_configs["episodes"].append({
+                        "episode_id": suc_num,
+                        **reproduction_config.to_dict()
+                    })
+                    
+                    # 保存
+                    with open(configs_file, "w", encoding="utf-8") as f:
+                        json.dump(all_configs, f, indent=2, ensure_ascii=False)
+                    
                     suc_num += 1
                 else:
                     print(f"simulate data episode {suc_num} fail! (seed = {epid})")
