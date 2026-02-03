@@ -535,6 +535,34 @@ class Robot:
             return 0
         return self.right_gripper_val
 
+    def get_left_gripper_state(self):
+        """获取左夹爪的真实物理状态（归一化到 [0,1]）"""
+        if None in self.left_gripper:
+            return 0
+        qpos = self.left_entity.get_qpos()
+        active_joints = self.left_entity.get_active_joints()
+        gripper_joint = self.left_gripper[0][0]  # base gripper joint
+        gripper_qpos = qpos[active_joints.index(gripper_joint)]
+        # 归一化到 [0,1]
+        normalized = (gripper_qpos - self.left_gripper_scale[0]) / (
+            self.left_gripper_scale[1] - self.left_gripper_scale[0]
+        )
+        return float(np.clip(normalized, 0, 1))
+
+    def get_right_gripper_state(self):
+        """获取右夹爪的真实物理状态（归一化到 [0,1]）"""
+        if None in self.right_gripper:
+            return 0
+        qpos = self.right_entity.get_qpos()
+        active_joints = self.right_entity.get_active_joints()
+        gripper_joint = self.right_gripper[0][0]  # base gripper joint
+        gripper_qpos = qpos[active_joints.index(gripper_joint)]
+        # 归一化到 [0,1]
+        normalized = (gripper_qpos - self.right_gripper_scale[0]) / (
+            self.right_gripper_scale[1] - self.right_gripper_scale[0]
+        )
+        return float(np.clip(normalized, 0, 1))
+
     def is_left_gripper_open(self):
         return self.left_gripper_val > 0.8
 

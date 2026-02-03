@@ -8,4 +8,4 @@ from .actor_utils import *
 from .transforms import *
 from .pkl2hdf5 import *
 from .images_to_video import *
-from .reproduction import ReproductionConfig
+from .reproduction import ReproductionConfig, ReproductionEnvWrapper
